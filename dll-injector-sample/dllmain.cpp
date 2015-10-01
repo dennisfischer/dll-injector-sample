@@ -22,7 +22,7 @@ extern "C" {
 // process as well as the instance mapped into our exe
 #pragma data_seg (".shared")
 #pragma comment(linker,"/section:.shared,rws")
-HHOOK hook = NULL;
+HHOOK hook = nullptr;
 #pragma data_seg ()
 
 BOOL APIENTRY DllMain(HMODULE hModule,
@@ -33,10 +33,10 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 	switch (ul_reason_for_call)
 	{
 	case DLL_PROCESS_ATTACH:
-		MessageBox(NULL, L"DLL attached", L"DLL attached", MB_OK);
+		MessageBox(nullptr, L"DLL attached", L"DLL attached", MB_OK);
 		break;
 	case DLL_PROCESS_DETACH:
-		MessageBox(NULL, L"DLL detached", L"DLL detached", MB_OK);
+		MessageBox(nullptr, L"DLL detached", L"DLL detached", MB_OK);
 		break;
 	}
 	return TRUE;
