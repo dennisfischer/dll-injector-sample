@@ -32,8 +32,5 @@
     <ClCompile Include="dll-injector-sample.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="dllmain.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>
