@@ -6,6 +6,9 @@
 #pragma once
 
 #include "targetver.h"
+#include <process.h>
+#include <fstream>
+
 
 #define WIN32_LEAN_AND_MEAN             // Selten verwendete Komponenten aus Windows-Headern ausschlieﬂen
 // Windows-Headerdateien:
