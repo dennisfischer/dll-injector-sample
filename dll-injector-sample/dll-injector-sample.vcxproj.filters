@@ -36,4 +36,9 @@
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="modules.def">
+      <Filter>Quelldateien</Filter>
+    </None>
+  </ItemGroup>
 </Project>

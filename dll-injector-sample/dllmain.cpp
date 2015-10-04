@@ -2,19 +2,17 @@
 //
 #include "stdafx.h"
 
-
 #pragma data_seg("SHARED")
 bool unloadDll = false;
 HMODULE hThisDll = nullptr;
 HANDLE hRemoteThread = nullptr;
-#pragma data_seq()
+#pragma data_seg()
 #pragma comment(linker, "/section:SHARED,RWS")
-
 
 void InjectDLL();
 void asyncThreadFunction(void* pvoid);
-extern "C" __declspec(dllexport) LRESULT __stdcall hookProc(int code, WPARAM wParam, LPARAM lParam);
-extern "C" __declspec(dllexport) void __stdcall UnloadDLL(void *);
+LRESULT __stdcall hookProc(int code, WPARAM wParam, LPARAM lParam);
+void __stdcall UnloadDLL();
 
 BOOL APIENTRY DllMain(HMODULE hModule,
                       DWORD fdwReason,
@@ -30,7 +28,6 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 		}
 		break;
 	case DLL_PROCESS_DETACH:
-		Beep(4000, 1000);
 		break;
 	}
 	return TRUE;
@@ -41,7 +38,7 @@ void InjectDLL()
 	hRemoteThread = HANDLE(_beginthread(asyncThreadFunction, 0, nullptr));
 }
 
-void __stdcall UnloadDLL(void *)
+void __stdcall UnloadDLL()
 {
 	unloadDll = true;
 }
@@ -62,8 +59,10 @@ void asyncThreadFunction(void*)
 {
 	while (!unloadDll)
 	{
+		Beep(4000, 1000);
 		Sleep(1000L);
 	}
-
 	FreeLibrary(hThisDll);
+	hThisDll = nullptr;
+	hRemoteThread = nullptr;
 }

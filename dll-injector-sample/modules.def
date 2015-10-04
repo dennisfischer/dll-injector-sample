@@ -1,0 +1,4 @@
+LIBRARY dll-injector-sample
+EXPORTS
+	hookProc @1
+	UnloadDLL @2
