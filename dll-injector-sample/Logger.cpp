@@ -2,13 +2,15 @@
 
 void logToFile(std::string message)
 {
-	std::ofstream log_file(
-		"D:/log_file.txt", std::ios_base::out | std::ios_base::app);
+	WCHAR cOutputPath[200];
+	ExpandEnvironmentStringsW(L"%UserProfile%\\Desktop\\log_file.txt", cOutputPath, sizeof(cOutputPath) / sizeof(*cOutputPath));
+	std::ofstream log_file(cOutputPath, std::ios_base::out | std::ios_base::app);
 	log_file << message << std::endl;
 }
 void logToFile(std::wstring message)
 {
-	std::wofstream  log_file(
-		"D:/log_file.txt", std::ios_base::out | std::ios_base::app);
+	WCHAR cOutputPath[200];
+	ExpandEnvironmentStringsW(L"%UserProfile%\\Desktop\\log_file.txt", cOutputPath, sizeof(cOutputPath) / sizeof(*cOutputPath));
+	std::wofstream  log_file(cOutputPath, std::ios_base::out | std::ios_base::app);
 	log_file << message << std::endl;
 }
