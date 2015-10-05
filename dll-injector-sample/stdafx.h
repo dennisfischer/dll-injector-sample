@@ -6,14 +6,14 @@
 #pragma once
 
 #include "targetver.h"
+#include <string>
 #include <process.h>
 #include <fstream>
-
+#include <uiautomation.h>
+#include "Logger.h"
 
 #define WIN32_LEAN_AND_MEAN             // Selten verwendete Komponenten aus Windows-Headern ausschlieﬂen
 // Windows-Headerdateien:
 #include <windows.h>
-
-
 
 // TODO: Hier auf zus‰tzliche Header, die das Programm erfordert, verweisen.
