@@ -18,6 +18,21 @@ BOOL APIENTRY DllMain(HMODULE hModule,
                       DWORD fdwReason,
                       LPVOID lpReserved)
 {
+	WCHAR applicationPath[MAX_PATH + 1];
+	auto len = GetModuleFileNameW(nullptr, applicationPath, MAX_PATH);
+	if (len > 0) {
+		std::wstring applicationString(applicationPath);
+		auto found = applicationString.find_last_of(L"/\\");
+		if(applicationString.substr(found + 1) != L"chrome.exe")
+		{
+			//Wrong process! Exit!
+			return TRUE;
+		}
+	}
+	else {
+		//Couldn't get process name - exit!
+		return TRUE;
+	}
 	switch (fdwReason)
 	{
 	case DLL_PROCESS_ATTACH:
@@ -151,10 +166,99 @@ HRESULT buildFullTree(IUIAutomationElement* rootNode)
 	return hr;
 }
 
+////////////////////////////////////////////////////////////////////
+//// ReadString from a certain Address and return as string type
+////////////////////////////////////////////////////////////////////
+//std::string ReadString(int Point, int Len)
+//{
+//	//char *value = (char*)malloc(Len+1) = {0};
+//	char value[8] = { 0 };
+//	SIZE_T numBytesRead;
+//
+//	if (ReadProcessMemory(GetCurrentProcess(), (LPVOID)Point, value, 7, &numBytesRead) == 0)
+//	{
+//		DWORD lastError = GetLastError();
+//		return "";
+//		// error - return an empty string
+//	}
+//
+//	return std::string(value, numBytesRead);
+//}
+//
+////////////////////////////////////////////////////////////////////
+//// ReadLong from a certain Address and return as int (4bytes) type
+////////////////////////////////////////////////////////////////////
+//int ReadLong(int Point) //We don't need Len (4bytes)s
+//{
+//	int tbuf;
+//
+//	if (ReadProcessMemory(GetCurrentProcess(), (LPVOID)Point, &tbuf, 4, NULL) == 0)
+//	{
+//		DWORD lastError = GetLastError();
+//		return 0;
+//		// error - return 0
+//	}
+//
+//	return tbuf;
+//}
+//
+//
+////////////////////////////////////////////////////////////////////
+//// Search a Certain String in a process
+////////////////////////////////////////////////////////////////////
+//int _stdcall SearchString(char *Text)
+//{
+//	long int x;
+//
+//	for (x = 0; x < 80000000; x++)
+//	{
+//		if(x % 800000 == 0)
+//		{
+//			logToFile(std::to_string(x/800000) + "%");
+//		}
+//		if (ReadString(x, 7) == Text)
+//		{
+//			return x; // Return the address we found                  
+//		}
+//	}
+//
+//	return 0; //Error Return zero
+//}
+//
+////////////////////////////////////////////////////////////////////
+//// Search a Certain Long in a process
+////////////////////////////////////////////////////////////////////
+//int _stdcall SearchLong(int Result)
+//{
+//	long int x;
+//
+//	for (x = 0; x < 80000000; x++)
+//	{
+//		if (x % 800000 == 0)
+//		{
+//			logToFile(std::to_string(x / 800000) + "%");
+//		}
+//		if (ReadLong(x) == Result)
+//		{
+//			return x; // Return the address we found                  
+//		}
+//	}
+//
+//	return 0; //Error Return zero
+//}
+
 void asyncThreadFunction(void*)
 {
 	logToFile("-------------------------------------");
 	logToFile("Injected");
+
+	//logToFile("SEARCHING");
+	//if (SearchLong(77833939L) == 0) {
+	//	logToFile("FAILED");
+	//} else 
+	//{
+	//	logToFile("FOUND");
+	//}
 
 	if (!InitializeUIAutomation())
 	{
@@ -255,7 +359,7 @@ cleanup:
 	//Wait for unload?
 	while (!unloadDll)
 	{
-		Beep(4000, 1000);
+		Beep(1000, 1000);
 		Sleep(1000L);
 	}
 	FreeLibrary(hThisDll);
