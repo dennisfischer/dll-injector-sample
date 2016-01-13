@@ -18,6 +18,9 @@
     <ClInclude Include="Logger.h">
       <Filter>Quelldateien</Filter>
     </ClInclude>
+    <ClInclude Include="dllmain.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
