@@ -1,6 +1,4 @@
-// dll-injector-sample.cpp : Definiert die exportierten Funktionen für die DLL-Anwendung.
-//
-#include "stdafx.h"
+#include "dllmain.h"
 
 #pragma data_seg("SHARED")
 bool unloadDll = false;
@@ -9,21 +7,14 @@ HANDLE hRemoteThread = nullptr;
 #pragma data_seg()
 #pragma comment(linker, "/section:SHARED,RWS")
 
-void InjectDLL();
-void asyncThreadFunction(void* pvoid);
-LRESULT __stdcall hookProc(int code, WPARAM wParam, LPARAM lParam);
-void __stdcall UnloadDLL();
-
-BOOL APIENTRY DllMain(HMODULE hModule,
-                      DWORD fdwReason,
-                      LPVOID lpReserved)
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 {
 	WCHAR applicationPath[MAX_PATH + 1];
 	auto len = GetModuleFileNameW(nullptr, applicationPath, MAX_PATH);
 	if (len > 0) {
 		std::wstring applicationString(applicationPath);
 		auto found = applicationString.find_last_of(L"/\\");
-		if(applicationString.substr(found + 1) != L"chrome.exe")
+		if (applicationString.substr(found + 1) != L"chrome.exe")
 		{
 			//Wrong process! Exit!
 			return TRUE;
@@ -80,12 +71,9 @@ BOOL InitializeUIAutomation()
 	return (SUCCEEDED(hr));
 }
 
-
-#define SAFE_RELEASE(element) if(element != nullptr) { element->Release(); element = nullptr; }
-
 HRESULT listTree(int level, IUIAutomationElement* rootNode, IUIAutomationTreeWalker* walker)
 {
-	auto hr = S_OK;
+	HRESULT hr;
 	IUIAutomationElement* element = nullptr;
 	auto base = std::wstring(level, L'-');
 	hr = walker->GetFirstChildElement(rootNode, &element);
@@ -110,13 +98,12 @@ HRESULT listTree(int level, IUIAutomationElement* rootNode, IUIAutomationTreeWal
 			BSTR controlType;
 			CONTROLTYPEID controlTypeId;
 			hr = element->get_CurrentName(&controlName);
-			hr = element->get_CurrentLocalizedControlType(&controlType);
-			hr = element->get_CurrentControlType(&controlTypeId);
+			hr += element->get_CurrentLocalizedControlType(&controlType);
+			hr += element->get_CurrentControlType(&controlTypeId);
 
 			if (FAILED(hr))
 			{
 				logToFile(base + L"Failed element control type");
-				logToFile(base + L"Error code: " + std::to_wstring(hr));
 			}
 			if (controlName != nullptr)
 			{
@@ -150,9 +137,8 @@ HRESULT listTree(int level, IUIAutomationElement* rootNode, IUIAutomationTreeWal
 
 HRESULT buildFullTree(IUIAutomationElement* rootNode)
 {
-	auto hr = S_OK;
 	IUIAutomationTreeWalker* walker = nullptr;
-	hr = g_pAutomation->get_ControlViewWalker(&walker);
+	auto hr = g_pAutomation->get_ControlViewWalker(&walker);
 
 	if (FAILED(hr) || walker == nullptr)
 	{
@@ -166,99 +152,10 @@ HRESULT buildFullTree(IUIAutomationElement* rootNode)
 	return hr;
 }
 
-////////////////////////////////////////////////////////////////////
-//// ReadString from a certain Address and return as string type
-////////////////////////////////////////////////////////////////////
-//std::string ReadString(int Point, int Len)
-//{
-//	//char *value = (char*)malloc(Len+1) = {0};
-//	char value[8] = { 0 };
-//	SIZE_T numBytesRead;
-//
-//	if (ReadProcessMemory(GetCurrentProcess(), (LPVOID)Point, value, 7, &numBytesRead) == 0)
-//	{
-//		DWORD lastError = GetLastError();
-//		return "";
-//		// error - return an empty string
-//	}
-//
-//	return std::string(value, numBytesRead);
-//}
-//
-////////////////////////////////////////////////////////////////////
-//// ReadLong from a certain Address and return as int (4bytes) type
-////////////////////////////////////////////////////////////////////
-//int ReadLong(int Point) //We don't need Len (4bytes)s
-//{
-//	int tbuf;
-//
-//	if (ReadProcessMemory(GetCurrentProcess(), (LPVOID)Point, &tbuf, 4, NULL) == 0)
-//	{
-//		DWORD lastError = GetLastError();
-//		return 0;
-//		// error - return 0
-//	}
-//
-//	return tbuf;
-//}
-//
-//
-////////////////////////////////////////////////////////////////////
-//// Search a Certain String in a process
-////////////////////////////////////////////////////////////////////
-//int _stdcall SearchString(char *Text)
-//{
-//	long int x;
-//
-//	for (x = 0; x < 80000000; x++)
-//	{
-//		if(x % 800000 == 0)
-//		{
-//			logToFile(std::to_string(x/800000) + "%");
-//		}
-//		if (ReadString(x, 7) == Text)
-//		{
-//			return x; // Return the address we found                  
-//		}
-//	}
-//
-//	return 0; //Error Return zero
-//}
-//
-////////////////////////////////////////////////////////////////////
-//// Search a Certain Long in a process
-////////////////////////////////////////////////////////////////////
-//int _stdcall SearchLong(int Result)
-//{
-//	long int x;
-//
-//	for (x = 0; x < 80000000; x++)
-//	{
-//		if (x % 800000 == 0)
-//		{
-//			logToFile(std::to_string(x / 800000) + "%");
-//		}
-//		if (ReadLong(x) == Result)
-//		{
-//			return x; // Return the address we found                  
-//		}
-//	}
-//
-//	return 0; //Error Return zero
-//}
-
 void asyncThreadFunction(void*)
 {
 	logToFile("-------------------------------------");
 	logToFile("Injected");
-
-	//logToFile("SEARCHING");
-	//if (SearchLong(77833939L) == 0) {
-	//	logToFile("FAILED");
-	//} else 
-	//{
-	//	logToFile("FOUND");
-	//}
 
 	if (!InitializeUIAutomation())
 	{
